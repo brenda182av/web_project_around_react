@@ -1,0 +1,20 @@
+.header {
+  padding-top: 45px;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  max-width: 880px;
+  position: relative;
+  align-items: flex-start;
+}
+
+.header__logo {
+  width: 173px;
+  height: 33px;
+}
+
+.line {
+  width: 100%;
+  border-top: 1px solid #545454;
+  margin-top: 41px;
+}

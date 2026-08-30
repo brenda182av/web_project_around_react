@@ -1,0 +1,15 @@
+/* Normalize */
+@import url("./vendor/normalize.css");
+
+/* Fonts */
+@import url("./fonts/fonts.css");
+
+/* Blocks */
+@import url("./blocks/page.css");
+@import url("./blocks/body.css");
+@import url("./blocks/header.css");
+@import url("./blocks/profile.css");
+@import url("./blocks/content.css");
+@import url("./blocks/elements.css");
+@import url("./blocks/popup.css");
+@import url("./blocks/footer.css");

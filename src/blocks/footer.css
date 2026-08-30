@@ -1,0 +1,23 @@
+.footer {
+  margin-top: 67px;
+  margin-bottom: 60px;
+  font-size: 18px;
+  font-family: "Inter";
+  color: #545454;
+  text-align: left;
+  max-width: 880px;
+  width: 100%;
+}
+
+@media screen and (max-width: 320px) {
+  .footer {
+    margin-top: 67px;
+    margin-bottom: 60px;
+    font-size: 18px;
+    font-family: "Inter";
+    color: #545454;
+    text-align: center;
+    max-width: 880px;
+    width: 100%;
+  }
+}
