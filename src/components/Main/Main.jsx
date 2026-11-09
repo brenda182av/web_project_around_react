@@ -1,63 +1,85 @@
-import { useState } from "react";
+import { useState, useContext } from "react";
+import CurrentUserContext from "../../contexts/CurrentUserContext";
 
 import avatar from "../../images/image.jpg";
 import editButton from "../../images/Edit Button.png";
 import plusIcon from "../../images/plus.png";
-import Card from "./components/Card/Card.jsx";
 
+import Card from "./components/Card/Card.jsx";
 import Popup from "./components/Popup/Popup.jsx";
 import NewCard from "./components/form/NewCard/NewCard.jsx";
 import EditProfile from "./components/form/EditProfile/EditProfile.jsx";
 import EditAvatar from "./components/form/EditAvatar/EditAvatar.jsx";
 import RemoveCard from "./components/form/RemoveCard/RemoveCard.jsx";
-const cards = [
-  {
-    isLiked: false,
-    _id: "5d1f0611d321eb4bdcd707dd",
-    name: "Yosemite Valley",
-    link: "https://practicum-content.s3.us-west-1.amazonaws.com/web-code/moved_yosemite.jpg",
-    owner: "5d1f0611d321eb4bdcd707dd",
-    createdAt: "2019-07-05T08:10:57.741Z",
-  },
-  {
-    isLiked: false,
-    _id: "5d1f064ed321eb4bdcd707de",
-    name: "Lake Louise",
-    link: "https://practicum-content.s3.us-west-1.amazonaws.com/web-code/moved_lake-louise.jpg",
-    owner: "5d1f0611d321eb4bdcd707dd",
-    createdAt: "2019-07-05T08:11:58.324Z",
-  },
-];
-function Main() {
+
+function Main({ cards, onCardLike, onCardDelete, onAddPlaceSubmit }) {
+  const { currentUser } = useContext(CurrentUserContext);
+
   const [popup, setPopup] = useState(null);
+  const [selectedCard, setSelectedCard] = useState(null);
+  const [isDeleting, setIsDeleting] = useState(false);
 
-  const newCardPopup = {
-    title: "Nuevo lugar",
-    children: <NewCard />,
-  };
-
-  const editProfilePopup = {
-    title: "Editar perfil",
-    children: <EditProfile />,
-  };
-
-  const editAvatarPopup = {
-    title: "Cambiar foto de perfil",
-    children: <EditAvatar />,
-  };
-
-  const removeCardPopup = {
-    title: "¿Estás seguro?",
-    children: <RemoveCard />,
-  };
-
+  // Abrir ventanas emergentes
   function handleOpenPopup(selectedPopup) {
     setPopup(selectedPopup);
   }
 
+  // Cerrar ventanas emergentes
   function handleClosePopup() {
     setPopup(null);
+    setSelectedCard(null);
   }
+
+  // Seleccionar una tarjeta para eliminar
+  function handleCardDelete(card) {
+    setSelectedCard(card);
+    setPopup({
+      title: "¿Estás seguro?",
+      type: "remove-card",
+    });
+  }
+
+  // Confirmar la eliminación
+  function handleConfirmDelete() {
+    if (!selectedCard || isDeleting) return;
+
+    setIsDeleting(true);
+
+    onCardDelete(selectedCard)
+      .then(() => {
+        handleClosePopup();
+      })
+      .catch((err) => {
+        console.error("Error al eliminar la tarjeta:", err);
+      })
+      .finally(() => {
+        setIsDeleting(false);
+      });
+  }
+
+  // Crear una tarjeta y cerrar el popup al guardar
+  function handleAddPlaceSubmit({ name, link }) {
+    return onAddPlaceSubmit({ name, link }).then((newCard) => {
+      handleClosePopup();
+      return newCard;
+    });
+  }
+
+  // Configuración de las ventanas emergentes
+  const newCardPopup = {
+    title: "Nuevo lugar",
+    children: <NewCard onAddPlaceSubmit={handleAddPlaceSubmit} />,
+  };
+
+  const editProfilePopup = {
+    title: "Editar perfil",
+    children: <EditProfile onClose={handleClosePopup} />,
+  };
+
+  const editAvatarPopup = {
+    title: "Cambiar foto de perfil",
+    children: <EditAvatar onClose={handleClosePopup} />,
+  };
 
   return (
     <main className="content">
@@ -67,8 +89,8 @@ function Main() {
           onClick={() => handleOpenPopup(editAvatarPopup)}
         >
           <img
-            src={avatar}
-            alt="Foto de perfil de Jacques Cousteau"
+            src={currentUser.avatar || avatar}
+            alt="Foto de perfil"
             className="profile__image"
           />
 
@@ -79,7 +101,7 @@ function Main() {
 
         <div className="profile__info">
           <div className="profile__name-container">
-            <h1 className="profile__name">Jacques Cousteau</h1>
+            <h1 className="profile__name">{currentUser.name}</h1>
 
             <img
               src={editButton}
@@ -89,7 +111,7 @@ function Main() {
             />
           </div>
 
-          <p className="profile__about">Explorador</p>
+          <p className="profile__about">{currentUser.about}</p>
         </div>
 
         <button
@@ -108,13 +130,19 @@ function Main() {
             key={card._id}
             card={card}
             handleOpenPopup={handleOpenPopup}
-            handleDeleteClick={() => handleOpenPopup(removeCardPopup)}
+            handleDeleteClick={() => handleCardDelete(card)}
+            onCardLike={onCardLike}
           />
         ))}
       </section>
+
       {popup && (
         <Popup onClose={handleClosePopup} title={popup.title}>
-          {popup.children}
+          {popup.type === "remove-card" ? (
+            <RemoveCard onConfirm={handleConfirmDelete} />
+          ) : (
+            popup.children
+          )}
         </Popup>
       )}
     </main>

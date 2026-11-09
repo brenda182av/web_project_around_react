@@ -1,6 +1,15 @@
-function RemoveCard() {
+function RemoveCard({ onConfirm }) {
+  function handleSubmit(event) {
+    event.preventDefault();
+    onConfirm();
+  }
+
   return (
-    <form className="popup__form" name="remove-card-form">
+    <form
+      className="popup__form"
+      name="remove-card-form"
+      onSubmit={handleSubmit}
+    >
       <button className="popup__button" type="submit">
         Sí
       </button>

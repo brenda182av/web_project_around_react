@@ -1,10 +1,56 @@
-function EditProfile() {
+import { useState, useEffect, useContext } from "react";
+import CurrentUserContext from "../../../../../contexts/CurrentUserContext";
+
+function EditProfile({ onClose }) {
+  const { currentUser, handleUpdateUser } = useContext(CurrentUserContext);
+
+  const [name, setName] = useState("");
+  const [description, setDescription] = useState("");
+  const [isSaving, setIsSaving] = useState(false);
+
+  useEffect(() => {
+    setName(currentUser.name || "");
+    setDescription(currentUser.about || "");
+  }, [currentUser.name, currentUser.about]);
+
+  function handleNameChange(event) {
+    setName(event.target.value);
+  }
+
+  function handleDescriptionChange(event) {
+    setDescription(event.target.value);
+  }
+
+  function handleSubmit(event) {
+    event.preventDefault();
+
+    if (!name.trim() || !description.trim() || isSaving) {
+      return;
+    }
+
+    setIsSaving(true);
+
+    handleUpdateUser({
+      name: name.trim(),
+      about: description.trim(),
+    })
+      .then(() => {
+        onClose();
+      })
+      .catch((err) => {
+        console.error("Error al guardar el perfil:", err);
+      })
+      .finally(() => {
+        setIsSaving(false);
+      });
+  }
+
   return (
     <form
       className="popup__form"
       name="profile-form"
       id="edit-profile-form"
-      noValidate
+      onSubmit={handleSubmit}
     >
       <label className="popup__field">
         <input
@@ -16,6 +62,8 @@ function EditProfile() {
           placeholder="Nombre"
           required
           type="text"
+          value={name}
+          onChange={handleNameChange}
         />
         <span
           className="popup__error error-message"
@@ -33,6 +81,8 @@ function EditProfile() {
           placeholder="Acerca de mí"
           required
           type="text"
+          value={description}
+          onChange={handleDescriptionChange}
         />
         <span
           className="popup__error error-message"
@@ -40,8 +90,8 @@ function EditProfile() {
         ></span>
       </label>
 
-      <button className="popup__button" type="submit">
-        Guardar
+      <button className="popup__button" type="submit" disabled={isSaving}>
+        {isSaving ? "Guardando..." : "Guardar"}
       </button>
     </form>
   );
