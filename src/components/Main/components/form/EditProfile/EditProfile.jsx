@@ -1,17 +1,12 @@
-import { useState, useEffect, useContext } from "react";
+import { useState, useContext } from "react";
 import CurrentUserContext from "../../../../../contexts/CurrentUserContext";
 
 function EditProfile({ onClose }) {
   const { currentUser, handleUpdateUser } = useContext(CurrentUserContext);
 
-  const [name, setName] = useState("");
-  const [description, setDescription] = useState("");
+  const [name, setName] = useState(currentUser.name || "");
+  const [description, setDescription] = useState(currentUser.about || "");
   const [isSaving, setIsSaving] = useState(false);
-
-  useEffect(() => {
-    setName(currentUser.name || "");
-    setDescription(currentUser.about || "");
-  }, [currentUser.name, currentUser.about]);
 
   function handleNameChange(event) {
     setName(event.target.value);
